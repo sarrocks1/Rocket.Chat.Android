@@ -111,7 +111,7 @@ class ChatRoomPresenter @Inject constructor(private val view: ChatRoomView,
             synchronized(roomMessages) {
                 val index = roomMessages.indexOfFirst { msg -> msg.id == streamedMessage.id }
                 if (index != -1) {
-                    Timber.d("Updatind message at $index")
+                    Timber.d("Updating message at $index")
                     roomMessages[index] = streamedMessage
                     view.dispatchUpdateMessage(index, viewModelStreamedMessage)
                 } else {
