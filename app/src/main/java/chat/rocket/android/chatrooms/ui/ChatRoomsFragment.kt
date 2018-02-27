@@ -1,5 +1,7 @@
 package chat.rocket.android.chatrooms.ui
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -11,6 +13,7 @@ import android.view.*
 import chat.rocket.android.R
 import chat.rocket.android.chatrooms.presentation.ChatRoomsPresenter
 import chat.rocket.android.chatrooms.presentation.ChatRoomsView
+import chat.rocket.android.main.presentation.ChatRoomsViewModel
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.server.domain.SettingsRepository
 import chat.rocket.android.util.extensions.inflate
@@ -28,6 +31,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     @Inject lateinit var presenter: ChatRoomsPresenter
     @Inject lateinit var serverInteractor: GetCurrentServerInteractor
     @Inject lateinit var settingsRepository: SettingsRepository
+    private lateinit var chatRoomsViewModel: ChatRoomsViewModel
     private var searchView: SearchView? = null
 
     companion object {
@@ -38,6 +42,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
         setHasOptionsMenu(true)
+        chatRoomsViewModel = ViewModelProviders.of(activity!!).get(ChatRoomsViewModel::class.java)
     }
 
     override fun onDestroy() {
@@ -53,6 +58,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         setupToolbar()
         setupRecyclerView()
         presenter.loadChatRooms()
+        chatRoomsViewModel.getSelectedChatRoom().observe(this, Observer { chatRoomContent ->
+            chatRoomContent?.let { presenter.loadChatRoom(chatRoomContent.first, chatRoomContent.second) }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -84,6 +92,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
                 adapter.updateRooms(newDataSet)
                 adapter.notifyDataSetChanged()
+                chatRoomsViewModel.setChatRooms(adapter.dataSet)
                 //diff.dispatchUpdatesTo(adapter)
             }
         }
@@ -109,8 +118,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         activity?.apply {
             recycler_view.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
             recycler_view.addItemDecoration(DividerItemDecoration(this,
-                resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_start),
-                resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
+                    resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_start),
+                    resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
             recycler_view.itemAnimator = DefaultItemAnimator()
             // TODO - use a ViewModel Mapper instead of using settings on the adapter
             recycler_view.adapter = ChatRoomsAdapter(this,

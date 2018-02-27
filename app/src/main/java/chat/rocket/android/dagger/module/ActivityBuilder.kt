@@ -17,6 +17,7 @@ import chat.rocket.android.main.di.MainActivityProvider
 import chat.rocket.android.main.di.MainModule
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.profile.di.ProfileFragmentProvider
+import chat.rocket.android.widget.share.di.ShareFragmentProvider
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -37,7 +38,8 @@ abstract class ActivityBuilder {
         MainActivityProvider::class,
         ChatRoomsModule::class,
         ChatRoomsFragmentProvider::class,
-        ProfileFragmentProvider::class
+        ProfileFragmentProvider::class,
+        ShareFragmentProvider::class
     ])
     abstract fun bindMainActivity(): MainActivity
 
